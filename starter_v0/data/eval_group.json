@@ -1,7 +1,185 @@
 {
-  "dataset_id": "day04_v3_helpdesk_group",
-  "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
-  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "st_01_check_device_status",
+      "phase": "B",
+      "type": "single_turn",
+      "failure_type": "wrong_arg_value",
+      "description": "Tra cứu trạng thái thiết bị hợp lệ",
+      "user_input": "Kiểm tra giúp tôi tình trạng laptop có mã LAPTOP-HN-042.",
+      "expect": {
+        "tools": [
+          "get_device_status"
+        ],
+        "intent": "device_inquiry"
+      }
+    },
+    {
+      "id": "st_02_ambiguous_intent",
+      "phase": "B",
+      "type": "single_turn",
+      "failure_type": "missing_info",
+      "description": "Ý định mơ hồ - máy hỏng nhưng không đưa mã hay mô tả cụ thể, yêu cầu agent hỏi lại",
+      "user_input": "Máy của tôi không bật lên được, hỗ trợ gấp với!",
+      "expect": {
+        "tools": [],
+        "intent": "clarification_needed"
+      }
+    },
+    {
+      "id": "st_03_search_kb_vpn_policy",
+      "phase": "B",
+      "type": "single_turn",
+      "failure_type": "wrong_tool",
+      "description": "Tra cứu chính sách/hướng dẫn VPN nội bộ",
+      "user_input": "Làm thế nào để xin quyền truy cập VPN làm việc từ xa?",
+      "expect": {
+        "tools": [
+          "search_knowledge_base"
+        ],
+        "intent": "policy_inquiry"
+      }
+    },
+    {
+      "id": "st_04_direct_ticket_creation",
+      "phase": "B",
+      "type": "single_turn",
+      "failure_type": "wrong_boundary",
+      "description": "Yêu cầu tạo ticket trực tiếp với đầy đủ thông tin",
+      "user_input": "Tạo ticket hỏng màn hình cho máy DESKTOP-LAB-01, mức độ khẩn cấp cao do chập điện.",
+      "expect": {
+        "tools": [
+          "create_ticket"
+        ],
+        "intent": "create_ticket"
+      }
+    },
+    {
+      "id": "st_05_external_spec_search",
+      "phase": "B",
+      "type": "single_turn",
+      "failure_type": "out_of_scope",
+      "description": "Tra cứu thông số thiết bị công khai",
+      "user_input": "Tìm thông tin cấu hình chuẩn và cổng kết nối của dòng Dell Latitude 7420.",
+      "expect": {
+        "tools": [
+          "search_device_info"
+        ],
+        "intent": "device_spec_search"
+      }
+    },
+    {
+      "id": "mt_01_device_correction",
+      "phase": "B",
+      "type": "multi_turn",
+      "failure_type": "wrong_arg_value",
+      "description": "Người dùng đính chính lại mã thiết bị ở lượt sau",
+      "expect": {
+        "tools": [
+          "get_device_status"
+        ],
+        "intent": "device_inquiry_correction"
+      },
+      "dialogue": [
+        {
+          "turn": 1,
+          "user_input": "Kiểm tra lịch bảo dưỡng của máy MACBOOK-SG-010 giúp tôi."
+        },
+        {
+          "turn": 2,
+          "user_input": "À tôi nhầm mã, mã đúng là MACBOOK-SG-012 cơ, kiểm tra lại nhé."
+        }
+      ]
+    },
+    {
+      "id": "mt_02_action_cancellation",
+      "phase": "B",
+      "type": "multi_turn",
+      "failure_type": "unnecessary_tool",
+      "description": "Người dùng đổi ý và hủy bỏ yêu cầu tạo ticket",
+      "expect": {
+        "tools": [],
+        "intent": "cancel_action"
+      },
+      "dialogue": [
+        {
+          "turn": 1,
+          "user_input": "Tạo giúp tôi ticket bảo hành chuột máy tính không nhận tín hiệu cho bàn làm việc số 5."
+        },
+        {
+          "turn": 2,
+          "user_input": "Thôi tôi đổi pin xong chuột chạy lại bình thường rồi, hủy yêu cầu tạo ticket nhé."
+        }
+      ]
+    },
+    {
+      "id": "mt_03_kb_lookup_then_ticket",
+      "phase": "B",
+      "type": "multi_turn",
+      "failure_type": "wrong_tool",
+      "description": "Tra cứu chính sách cấp phát màn hình, sau khi xác nhận thì yêu cầu tạo ticket",
+      "expect": {
+        "tools": [
+          "create_ticket"
+        ],
+        "intent": "create_ticket"
+      },
+      "dialogue": [
+        {
+          "turn": 1,
+          "user_input": "Chính sách công ty có cho phép nhân viên thử việc yêu cầu cấp thêm màn hình phụ không?"
+        },
+        {
+          "turn": 2,
+          "user_input": "Được rồi, vậy tạo giúp tôi ticket yêu cầu 1 màn hình 24 inch cho nhân sự thử việc phòng Data."
+        }
+      ]
+    },
+    {
+      "id": "mt_04_missing_params_then_clarified",
+      "phase": "B",
+      "type": "multi_turn",
+      "failure_type": "missing_info",
+      "description": "Yêu cầu cấp tài khoản thiếu thông tin, bot hỏi bổ sung và người dùng cung cấp",
+      "expect": {
+        "tools": [
+          "reset_account_access"
+        ],
+        "intent": "account_action"
+      },
+      "dialogue": [
+        {
+          "turn": 1,
+          "user_input": "Cấp lại mật khẩu tài khoản hệ thống giúp tôi."
+        },
+        {
+          "turn": 2,
+          "user_input": "Email của tôi là minh.ha@company.com, mã nhân viên NV-2026."
+        }
+      ]
+    },
+    {
+      "id": "mt_05_hardware_diag_then_external_search",
+      "phase": "B",
+      "type": "multi_turn",
+      "failure_type": "wrong_boundary",
+      "description": "Kiểm tra thiết bị nội bộ thất bại, sau đó tra cứu tài liệu hỗ trợ bên ngoài",
+      "expect": {
+        "tools": [
+          "search_device_info"
+        ],
+        "intent": "external_search"
+      },
+      "dialogue": [
+        {
+          "turn": 1,
+          "user_input": "Máy in HP LaserJet M404dn ở tầng 3 báo lỗi 'Error 59.F0', trong hệ thống bảo trì có note cách fix chưa?"
+        },
+        {
+          "turn": 2,
+          "user_input": "Không có à? Vậy tìm trên web xem lỗi 59.F0 của HP M404dn thường do linh kiện nào gây ra."
+        }
+      ]
+    }
+  ]
 }
